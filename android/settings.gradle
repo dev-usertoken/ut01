@@ -1,0 +1,5 @@
+rootProject.name = 'rnrsa'
+include ':react-native-key-pair'
+project(':react-native-key-pair').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-key-pair/android')
+
+include ':app'
