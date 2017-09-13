@@ -17,6 +17,10 @@ var now = require("performance-now")
 import RSA from 'react-native-key-pair';
 
 var RSAKey = require('react-native-rsa');
+import genRSAKey from './utils/genRSAKey';
+
+
+
 const bits = 2048;
 const exponent = '10001'; // must be a string. This is hex string. decimal = 65537
 
@@ -28,6 +32,7 @@ export default class rnrsa extends Component {
      privateKey: '',
      numRuns: 10,
      nativeTotalTime: '',
+     forgeTotalTime: '',
      jsTotalTime: ''
    };
   }
@@ -59,6 +64,24 @@ export default class rnrsa extends Component {
       });
     };
   }
+  _genKeyForge = () => {
+    const { createCert } = genRSAKey;
+    let data = {};
+    const start = now();
+    let end, forgeTotalTime, publicKey, privateKey;
+    // this.setState({ totalTime: 0});
+    for (i=1; i<this.state.numRuns; i++) {
+      // create certificate for server and client
+      createCert('server', data);
+      end = now();
+      publicKey = data.server.cert;
+      privateKey = data.server.privateKey;
+      forgeTotalTime = end - start;
+      this.setState({ publicKey, privateKey, forgeTotalTime });
+    };
+    // createCert('client', this.state.data);
+    // console.log('_genKeyForge : ', data);
+  }
 
   render() {
     return (
@@ -72,6 +95,10 @@ export default class rnrsa extends Component {
         <Text style={styles.instructions}>
           nativeTotalTime : {this.state.nativeTotalTime}
         </Text>
+        <Text style={styles.instructions}>
+          forgeTotalTime : {this.state.forgeTotalTime}
+        </Text>
+
         <Button
           onPress={this._genKeyJS}
           title="Generate JS Keys"
@@ -84,6 +111,13 @@ export default class rnrsa extends Component {
           color="#841584"
           accessibilityLabel="Generate Native Keys"
         />
+        <Button
+          onPress={this._genKeyForge}
+          title="Generate ForgeJS Keys"
+          color="#841584"
+          accessibilityLabel="Generate ForgeJS Keys"
+        />
+
       </View>
     );
   }
